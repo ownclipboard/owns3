@@ -20,7 +20,10 @@ export default defineEventHandler(async (event) => {
   const path = normalizePath(requireParam(event, 'path'))
   const key = resolveKey(ctx.app, path)
 
+  setLogDetails(event, { path })
   const res = await withS3(() => ctx.s3.getObject(key, { range: getHeader(event, 'range') }))
+  const length = Number(res.headers.get('content-length'))
+  if (Number.isFinite(length)) setLogDetails(event, { size: length })
 
   setResponseStatus(event, res.status)
   for (const name of FORWARDED_HEADERS) {

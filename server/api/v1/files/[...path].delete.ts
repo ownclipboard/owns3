@@ -13,6 +13,7 @@ defineRouteMeta({
 export default defineEventHandler(async (event) => {
   const ctx = await requireApiKey(event, 'delete')
   const path = normalizePath(requireParam(event, 'path'))
+  setLogDetails(event, { path })
   await withS3(() => ctx.s3.deleteObject(resolveKey(ctx.app, path)))
   return { ok: true, path }
 })

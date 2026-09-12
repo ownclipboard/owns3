@@ -8,6 +8,13 @@
       "when": 1789228286639,
       "tag": "0000_talented_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789230804492,
+      "tag": "0001_milky_exiles",
+      "breakpoints": true
     }
   ]
 }

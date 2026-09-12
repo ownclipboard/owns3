@@ -1,2 +1,4 @@
-# Copy to .dev.vars for local development. Generate a strong value, e.g. `openssl rand -base64 48`
+# SECRET_KEY encrypts stored S3 secrets and signs the admin login cookie.
+# Replace the value with a long random string (32+ characters), e.g. from `openssl rand -base64 48`.
+# The example value below is rejected by the app on purpose.
 SECRET_KEY=change-me-to-a-long-random-string

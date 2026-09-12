@@ -1,4 +1,5 @@
 export interface AdminStatus {
+  secretKeyConfigured: boolean
   setupComplete: boolean
   authenticated: boolean
   siteName: string

@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 export const SETTING_KEYS = {
   passwordHash: 'admin_password_hash',
   siteName: 'site_name',
+  logsEnabled: 'logs_enabled',
 } as const
 
 export async function getSetting(db: Db, key: string): Promise<string | null> {
@@ -19,4 +20,9 @@ export async function setSetting(db: Db, key: string, value: string): Promise<vo
 
 export async function isSetupComplete(db: Db): Promise<boolean> {
   return (await getSetting(db, SETTING_KEYS.passwordHash)) !== null
+}
+
+/** Request logging is on unless explicitly turned off in Settings. */
+export async function isLoggingEnabled(db: Db): Promise<boolean> {
+  return (await getSetting(db, SETTING_KEYS.logsEnabled)) !== 'false'
 }

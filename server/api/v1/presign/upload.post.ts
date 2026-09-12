@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
   const ctx = await requireApiKey(event, 'write')
   const { path: rawPath, expiresIn } = await readValidated(event, presignSchema)
   const path = normalizePath(rawPath)
+  setLogDetails(event, { path })
   const url = await ctx.s3.presign('PUT', resolveKey(ctx.app, path), expiresIn)
   return { method: 'PUT', url, path, expiresIn }
 })

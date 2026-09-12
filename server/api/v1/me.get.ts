@@ -22,7 +22,7 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const ctx = await requireApiKey(event, 'read').catch(() => requireApiKey(event, 'write')).catch(() => requireApiKey(event, 'delete'))
+  const ctx = await requireApiKey(event, null)
   return {
     app: { id: ctx.app.id, name: ctx.app.name, slug: ctx.app.slug, folder: ctx.app.folder },
     key: { id: ctx.key.id, name: ctx.key.name, permissions: ctx.permissions },

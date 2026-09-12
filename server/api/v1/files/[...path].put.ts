@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
   const contentType = getHeader(event, 'content-type') || 'application/octet-stream'
 
   const body = (await readRawBody(event, false)) ?? new Uint8Array()
+  setLogDetails(event, { path, size: body.byteLength })
   const { etag } = await withS3(() => ctx.s3.putObject(key, body, contentType))
   return { path, size: body.byteLength, contentType, etag }
 })

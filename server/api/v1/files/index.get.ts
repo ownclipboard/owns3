@@ -50,6 +50,7 @@ export default defineEventHandler(async (event) => {
     prefix = base + normalized + (normalized && query.prefix.endsWith('/') ? '/' : '')
   }
 
+  setLogDetails(event, { path: stripPrefix(base, prefix) || '/' })
   const result = await withS3(() =>
     ctx.s3.listObjects({ prefix, delimiter: query.delimiter, cursor: query.cursor, maxKeys: query.limit }),
   )

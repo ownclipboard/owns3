@@ -3,7 +3,7 @@ const { toasts, dismiss } = useToast()
 </script>
 
 <template>
-  <div class="pointer-events-none fixed right-4 bottom-4 z-[60] flex w-80 flex-col gap-2">
+  <div class="pointer-events-none fixed inset-x-4 bottom-4 z-[60] flex flex-col gap-2 sm:inset-x-auto sm:right-4 sm:w-80">
     <TransitionGroup name="toast">
       <div
         v-for="toast in toasts"

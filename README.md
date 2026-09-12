@@ -2,6 +2,11 @@
 
 A protocol for the world to share your s3 storage without sharing your s3 credentials.
 
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/ownclipboard/owns3)
+
+No coding needed: the button above deploys Owns3 to your own Cloudflare account in a few clicks. See
+[One-click deploy](#one-click-deploy-to-cloudflare) below.
+
 What this is not:
     - A storage. It is a server that allows you share your s3 storage to applications to enable them upload files to your own s3 storage.
     - An s3 explorer. The major reason this is a nuxt project is to provide an interface for you to create apps and api keys.
@@ -46,7 +51,34 @@ Which most times does the trick for small projects.
 The dashboard is protected by a single admin password chosen during first-run setup and stored as a bcrypt
 hash in the `site_settings` table.
 
-# Deploying to Cloudflare
+**Forgot the password?** Open `/reset` (linked from the login page) and enter the `SECRET_KEY` worker secret.
+This factory-resets the installation: password, site settings, credentials, apps and API keys are deleted and
+the setup screen is shown again. Files already in your buckets are never touched. The same reset is available
+in the Danger Zone of the Settings page.
+
+# One-click deploy to Cloudflare
+
+You only need a free [Cloudflare account](https://dash.cloudflare.com/sign-up) and a GitHub or GitLab account.
+
+1. Click **Deploy to Cloudflare** at the top of this page and log in to Cloudflare.
+2. Cloudflare copies this repository into your own GitHub/GitLab account and asks for a few details.
+   You can keep the suggested Worker name.
+3. It creates the **D1 database** for you automatically.
+4. Under **Secrets** you are asked for `SECRET_KEY`. Paste a long random string (32 characters or more,
+   for example from a password generator). Write it down somewhere safe: it protects the S3 credentials you
+   will save, and it is the only thing that can [reset the installation](#how-it-works) if you forget the
+   admin password.
+5. Click **Create and deploy**. The first build takes a minute or two and applies the database schema.
+6. Open the Worker URL you are given (something like `https://owns3.<your-subdomain>.workers.dev`),
+   choose an admin password, add your S3 or R2 credential, create an app and generate an API key.
+
+If you skipped the secret, the setup page tells you exactly where to add it in the Cloudflare dashboard
+(**Workers & Pages → owns3 → Settings → Variables and Secrets**) and lets you retry.
+
+Updating later: the button set up a Git integration, so pushing to your copy of the repository redeploys
+the Worker. To pull in new Owns3 versions, sync your fork with this repository on GitHub.
+
+# Deploying with the CLI
 
 ```bash
 npm install
@@ -54,13 +86,10 @@ npm install
 # 1. Create the D1 database and paste the returned database_id into wrangler.jsonc
 npx wrangler d1 create owns3
 
-# 2. Apply the schema
-npm run db:migrate
-
-# 3. Set the installation secret (encrypts stored S3 secrets and signs the login cookie)
+# 2. Set the installation secret (encrypts stored S3 secrets and signs the login cookie)
 openssl rand -base64 48 | npx wrangler secret put SECRET_KEY
 
-# 4. Build and deploy
+# 3. Build, apply the database schema and deploy
 npm run deploy
 ```
 
@@ -104,10 +133,23 @@ curl -X PUT "https://your-worker.workers.dev/api/v1/files/hello.txt" \
   --data-binary @hello.txt
 ```
 
+# Request logs
+
+Every request to `/api/v1/*` is written to the `request_logs` table, including rejected ones (bad key, missing
+permission, path not found, S3 errors). Each row records the app and key that made the call, the action
+(upload, download, delete, list, stat, presigned URL), the object path, HTTP status, bytes transferred,
+duration, client IP and user agent. Writes happen after the response is sent, so logging does not slow requests.
+
+The **Logs** page in the dashboard shows the last 24 hours at a glance and lets you filter by app, action,
+outcome or a path/IP search, and expand a row for the error message and user agent. **Prune** deletes entries
+older than 30 days; **Clear all** empties the log. Logging is on by default and can be turned off in Settings.
+Each logged request costs one D1 write, so keep the free-tier limit of 100k writes per day in mind for very busy apps.
+
 # Project layout
 
-- `server/database/schema.ts` – Drizzle schema (`site_settings`, `s3_credentials`, `apps`, `api_keys`); migrations in `server/database/migrations`
+- `server/database/schema.ts` – Drizzle schema (`site_settings`, `s3_credentials`, `apps`, `api_keys`, `request_logs`); migrations in `server/database/migrations`
 - `server/api/admin/*` – dashboard API (session cookie protected)
 - `server/api/v1/*` – public API used by applications (API key protected)
 - `server/utils/s3.ts` – small S3 client built on `aws4fetch` (works on Workers, supports presigned URLs)
+- `server/plugins/request-log.ts` – records every `/api/v1` request in `request_logs`
 - `app/` – Nuxt 4 dashboard styled with Tailwind CSS

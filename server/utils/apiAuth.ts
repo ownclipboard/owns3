@@ -32,8 +32,8 @@ function touchLastUsed(event: H3Event, db: Db, key: ApiKey) {
   if (waitUntil) waitUntil.call(event.context.cloudflare.context, promise)
 }
 
-/** Authenticates the request with an app API key and checks the required permission. */
-export async function requireApiKey(event: H3Event, permission: Permission): Promise<ApiContext> {
+/** Authenticates the request with an app API key and checks the required permission (null = any valid key). */
+export async function requireApiKey(event: H3Event, permission: Permission | null): Promise<ApiContext> {
   let ctx = event.context.owns3 as ApiContext | undefined
 
   if (!ctx) {
@@ -71,7 +71,7 @@ export async function requireApiKey(event: H3Event, permission: Permission): Pro
     touchLastUsed(event, db, row.key)
   }
 
-  if (!ctx.permissions.includes(permission)) {
+  if (permission && !ctx.permissions.includes(permission)) {
     throw createError({
       statusCode: 403,
       statusMessage: 'Forbidden',

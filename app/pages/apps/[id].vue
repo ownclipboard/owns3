@@ -97,7 +97,9 @@ const curlExample = computed(
     <div v-if="error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ errorMessage(error) }}</div>
 
     <template v-else-if="app">
-      <PageHeader :title="app.name" :description="app.description || `Stores files in ${app.credential.bucket}${app.folder ? ' under ' + app.folder + '/' : ''}`" back="/" />
+      <PageHeader :title="app.name" :description="app.description || `Stores files in ${app.credential.bucket}${app.folder ? ' under ' + app.folder + '/' : ''}`" back="/">
+        <UiButton variant="secondary" :to="`/logs?appId=${app.id}`">View logs</UiButton>
+      </PageHeader>
 
       <div class="space-y-6">
         <UiCard title="API keys" description="Keys are shown once when created. Only a hash is stored.">
@@ -115,14 +117,14 @@ const curlExample = computed(
               </thead>
               <tbody class="divide-y divide-zinc-100">
                 <tr v-for="key in app.keys" :key="key.id" :class="key.revokedAt && 'opacity-60'">
-                  <td class="py-3 pr-4 font-medium text-zinc-800">{{ key.name }}</td>
+                  <td class="py-3 pr-4 font-medium whitespace-nowrap text-zinc-800">{{ key.name }}</td>
                   <td class="py-3 pr-4 font-mono text-xs text-zinc-600">{{ key.keyPrefix }}…</td>
                   <td class="py-3 pr-4">
                     <div class="flex flex-wrap gap-1">
                       <UiBadge v-for="p in key.permissions" :key="p" color="indigo">{{ p }}</UiBadge>
                     </div>
                   </td>
-                  <td class="py-3 pr-4 text-zinc-500">{{ formatRelative(key.lastUsedAt) }}</td>
+                  <td class="py-3 pr-4 whitespace-nowrap text-zinc-500">{{ formatRelative(key.lastUsedAt) }}</td>
                   <td class="py-3 pr-4">
                     <UiBadge :color="key.revokedAt ? 'red' : 'green'">{{ key.revokedAt ? 'Revoked' : 'Active' }}</UiBadge>
                   </td>

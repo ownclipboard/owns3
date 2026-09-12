@@ -5,8 +5,8 @@ defineProps<{ title: string; closable?: boolean }>()
 
 <template>
   <Teleport to="body">
-    <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/50 p-4" @click.self="closable && (open = false)">
-      <div class="w-full max-w-lg rounded-xl bg-white shadow-xl">
+    <div v-if="open" class="fixed inset-0 z-50 flex items-end justify-center bg-zinc-900/50 p-0 sm:items-center sm:p-4" @click.self="closable && (open = false)">
+      <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-xl bg-white shadow-xl sm:rounded-xl">
         <div class="border-b border-zinc-100 px-5 py-4">
           <h3 class="text-base font-semibold text-zinc-900">{{ title }}</h3>
         </div>

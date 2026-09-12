@@ -21,6 +21,7 @@ defineRouteMeta({
 export default defineEventHandler(async (event) => {
   const ctx = await requireApiKey(event, 'read')
   const path = normalizePath(requireParam(event, 'path'))
+  setLogDetails(event, { path })
   const meta = await withS3(() => ctx.s3.headObject(resolveKey(ctx.app, path)))
   return { path, size: meta.size, contentType: meta.contentType, etag: meta.etag, lastModified: meta.lastModified }
 })

@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
   const path = normalizePath(pathField || file.filename)
   const key = resolveKey(ctx.app, path)
   const contentType = file.type || 'application/octet-stream'
+  setLogDetails(event, { path, size: file.data.byteLength })
 
   const { etag } = await withS3(() => ctx.s3.putObject(key, file.data, contentType))
   return { path, size: file.data.byteLength, contentType, etag }

@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 const timestamps = {
   createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
@@ -55,7 +55,34 @@ export const apiKeys = sqliteTable('api_keys', {
   createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
 })
 
+/** One row per /api/v1 request. App/key names are denormalised so history survives deletion. */
+export const requestLogs = sqliteTable(
+  'request_logs',
+  {
+    id: text('id').primaryKey(),
+    appId: text('app_id'),
+    appName: text('app_name'),
+    keyId: text('key_id'),
+    keyName: text('key_name'),
+    /** upload | download | delete | list | stat | presign_upload | presign_download | me | other */
+    action: text('action').notNull(),
+    method: text('method').notNull(),
+    /** App-relative object path, or the listing prefix. */
+    path: text('path'),
+    status: integer('status').notNull(),
+    error: text('error'),
+    /** Bytes uploaded or downloaded, when known. */
+    size: integer('size'),
+    durationMs: integer('duration_ms').notNull(),
+    ip: text('ip'),
+    userAgent: text('user_agent'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
+  },
+  (t) => [index('request_logs_created_at_idx').on(t.createdAt), index('request_logs_app_idx').on(t.appId, t.createdAt)],
+)
+
 export type SiteSetting = typeof siteSettings.$inferSelect
 export type S3Credential = typeof s3Credentials.$inferSelect
 export type App = typeof apps.$inferSelect
 export type ApiKey = typeof apiKeys.$inferSelect
+export type RequestLog = typeof requestLogs.$inferSelect

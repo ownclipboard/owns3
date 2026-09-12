@@ -26,5 +26,12 @@ async function submit() {
       <UiInput v-model="password" label="Password" type="password" required autocomplete="current-password" />
       <UiButton type="submit" :loading="saving" class="w-full">Log in</UiButton>
     </form>
+    <template #footer>
+      <p class="text-center text-xs text-zinc-500">
+        Forgot the password?
+        <NuxtLink to="/reset" class="font-medium text-zinc-700 underline hover:text-zinc-900">Reset the installation</NuxtLink>
+        with your SECRET_KEY.
+      </p>
+    </template>
   </UiCard>
 </template>

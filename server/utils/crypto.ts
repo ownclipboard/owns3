@@ -4,14 +4,23 @@ import bcrypt from 'bcryptjs'
 const enc = new TextEncoder()
 const dec = new TextDecoder()
 
+const PLACEHOLDER_SECRET = 'change-me-to-a-long-random-string'
+
+/** Returns the SECRET_KEY secret, or null when it is missing, too short, or still the example placeholder. */
+export function findSecretKey(event: H3Event): string | null {
+  const secret = useCloudflareEnv(event)?.SECRET_KEY || process.env.SECRET_KEY
+  if (!secret || secret.length < 16 || secret === PLACEHOLDER_SECRET) return null
+  return secret
+}
+
 /** The installation secret. Used to encrypt stored S3 secrets and to seal the admin session cookie. */
 export function getSecretKey(event: H3Event): string {
-  const secret = useCloudflareEnv(event)?.SECRET_KEY || process.env.SECRET_KEY
-  if (!secret || secret.length < 16) {
+  const secret = findSecretKey(event)
+  if (!secret) {
     throw createError({
       statusCode: 500,
       statusMessage: 'SECRET_KEY not configured',
-      message: 'Set the SECRET_KEY secret (at least 16 characters). Locally use .dev.vars, in production `wrangler secret put SECRET_KEY`.',
+      message: 'Set the SECRET_KEY secret to a random value of at least 16 characters. Locally use .dev.vars, in production `wrangler secret put SECRET_KEY` or the Workers dashboard (Settings → Variables and Secrets).',
     })
   }
   return secret
