@@ -1,0 +1,2 @@
+# Copy to .dev.vars for local development. Generate a strong value, e.g. `openssl rand -base64 48`
+SECRET_KEY=change-me-to-a-long-random-string

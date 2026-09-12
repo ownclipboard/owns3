@@ -8,18 +8,30 @@
     "generate": "nuxt generate",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply owns3 --local",
+    "db:migrate": "wrangler d1 migrations apply owns3 --remote",
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "@nuxt/content": "^3.16.0",
+    "aws4fetch": "^1.0.20",
+    "bcryptjs": "^3.0.3",
+    "drizzle-orm": "^0.45.2",
     "nuxt": "^4.5.2",
     "vue": "^3.5.42",
-    "vue-router": "^5.3.1"
+    "vue-router": "^5.3.1",
+    "zod": "^4.6.2"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^22.20.2",
+    "drizzle-kit": "^0.31.10",
     "nitro-cloudflare-dev": "^0.2.2",
     "nitropack": "^2.13.4",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.3.11",
     "wrangler": "^4.131.1"
   }
 }
