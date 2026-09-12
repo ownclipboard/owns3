@@ -1,75 +1,33 @@
-# Nuxt Content Starter
+# Owns3 Protocol - Your s3 storage server
 
-Look at the [Nuxt Content documentation](https://content.nuxt.com) to learn more.
+A protocol for the world to share your s3 storage without sharing your s3 credentials.
 
-## Setup
+What this is not:
+    - A storage. It is a server that allows you share your s3 storage to applications to enable them upload files to your own s3 storage.
+    - An s3 explorer. The major reason this is a nuxt project is to provide an interface for you to create apps and api keys.
 
-Make sure to install dependencies:
 
-```bash
-# npm
-npm install
+# What this is:
+Share your s3 storage without sharing your s3 credentials. Owns3 is a server that allows you to create applications 
+and api keys to allow other applications to run CRUD operations on your s3 storage without sharing your s3 credentials.
 
-# pnpm
-pnpm install
+Includes an interface to manage your applications and api keys.
 
-# yarn
-yarn install
+# Requirements
+This project is powered by nuxt3 and built for cloudflare workers. 
+It is recommended to use cloudflare workers to host this project. 
+Cloudflare r2 storage is recommended to use with this project. It offers 10GB free storage and 1 million free requests per month.
+Which most times does the trick for small projects.
 
-# bun
-bun install
-```
+- cloudflare account
+- cloudflare d1 database
+- S3 storage (required, cloudflare r2 storage recommended)
 
-## Development Server
 
-Start the development server on `http://localhost:3000`:
+# What owns3 comes with:
 
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- A simple and easy-to-use interface for managing your applications and API keys.
+- Support for creating and managing multiple applications with unique API keys.
+- Seamless integration with cloudflare workers.
+- Built-in authentication and authorization mechanisms to ensure secure access to your S3 storage.
+- full CRUD api documented by swagger for applications to use.
