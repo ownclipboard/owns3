@@ -83,15 +83,21 @@ the Worker. To pull in new Owns3 versions, sync your fork with this repository o
 ```bash
 npm install
 
-# 1. Create the D1 database and paste the returned database_id into wrangler.jsonc
+# 1. Create the D1 database and note the database_id it prints
 npx wrangler d1 create owns3
 
 # 2. Set the installation secret (encrypts stored S3 secrets and signs the login cookie)
 openssl rand -base64 48 | npx wrangler secret put SECRET_KEY
 
 # 3. Build, apply the database schema and deploy
-npm run deploy
+D1_DATABASE_ID=<the id from step 1> npm run deploy
 ```
+
+The database id is not stored in the repository. `npm run deploy` writes it into `wrangler.jsonc` from the
+`D1_DATABASE_ID` environment variable right before building (`scripts/apply-d1-id.mjs`), and refuses to deploy
+if neither is set. If you deploy through Cloudflare's Git integration (Workers Builds), add `D1_DATABASE_ID`
+under **Worker → Settings → Build → Variables and secrets** so every build picks it up. Locally, `git checkout
+wrangler.jsonc` restores the placeholder if you don't want the id in your working copy.
 
 Open the deployed worker, complete the setup screen, add an S3 credential, create an app and generate a key.
 

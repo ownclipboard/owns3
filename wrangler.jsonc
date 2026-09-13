@@ -16,8 +16,9 @@
 	},
 	"upload_source_maps": true,
 	/**
-	 * D1 database. Create one with `wrangler d1 create owns3` and paste the returned id below.
-	 * Migrations live in server/database/migrations and are applied with `npm run db:migrate`.
+	 * D1 database. The id is NOT committed: `npm run deploy` fills it in from the D1_DATABASE_ID
+	 * environment variable (see scripts/apply-d1-id.mjs). The Deploy to Cloudflare button fills it in too.
+	 * Migrations live in server/database/migrations and are applied by `npm run deploy` / `npm run db:migrate`.
 	 */
 	"d1_databases": [
 		{

@@ -7,11 +7,11 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "npm run build && wrangler dev",
-    "deploy": "npm run build && wrangler d1 migrations apply DB --remote && wrangler deploy",
+    "deploy": "node scripts/apply-d1-id.mjs && npm run build && wrangler d1 migrations apply DB --remote && wrangler deploy",
     "cf-typegen": "wrangler types",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply owns3 --local",
-    "db:migrate": "wrangler d1 migrations apply owns3 --remote",
+    "db:migrate": "node scripts/apply-d1-id.mjs && wrangler d1 migrations apply DB --remote",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
