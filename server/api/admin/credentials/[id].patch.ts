@@ -7,10 +7,12 @@ const schema = credentialInputSchema.partial().extend({
 })
 
 export default defineEventHandler(async (event) => {
+  const actor = requireActor(event)
   const db = useDb(event)
   const id = requireParam(event, 'id')
   const existing = await db.select().from(tables.s3Credentials).where(eq(tables.s3Credentials.id, id)).get()
   if (!existing) throw createError({ statusCode: 404, message: 'Credential not found' })
+  assertOwned(actor, existing.userId, 'Credential')
 
   const { secretAccessKey, ...rest } = await readValidated(event, schema)
   const patch: Partial<typeof existing> = { ...rest, updatedAt: new Date() }

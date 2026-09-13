@@ -1,10 +1,12 @@
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
+  const actor = requireActor(event)
   const db = useDb(event)
   const input = await readValidated(event, credentialInputSchema)
   const row = {
     id: crypto.randomUUID(),
+    userId: actorOwnerId(actor),
     ...input,
     secretAccessKey: await encryptSecret(input.secretAccessKey, getSecretKey(event)),
   }

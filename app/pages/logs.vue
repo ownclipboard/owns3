@@ -9,7 +9,10 @@ const toast = useToast()
 const ACTIONS = ['upload', 'download', 'delete', 'list', 'stat', 'presign_upload', 'presign_download', 'me', 'other']
 
 // Filters live in the URL so the page is linkable (e.g. from an app's "View logs" button).
+const { showOwners, users } = await useOwners()
+
 const filters = reactive({
+  owner: (route.query.owner as string) || '',
   appId: (route.query.appId as string) || '',
   action: (route.query.action as string) || '',
   outcome: (route.query.outcome as string) || '',
@@ -28,7 +31,7 @@ watch(
   { deep: true },
 )
 watch(
-  () => [filters.appId, filters.action, filters.outcome, filters.q],
+  () => [filters.owner, filters.appId, filters.action, filters.outcome, filters.q],
   () => {
     filters.page = 1
   },
@@ -49,6 +52,7 @@ const {
   refresh: refreshLogs,
 } = await useFetch('/api/admin/logs', {
   query: computed(() => ({
+    owner: filters.owner || undefined,
     appId: filters.appId || undefined,
     action: filters.action || undefined,
     outcome: filters.outcome || undefined,
@@ -65,10 +69,10 @@ const appOptions = computed(() => [
 ])
 
 const expanded = ref<string | null>(null)
-const hasFilters = computed(() => !!(filters.appId || filters.action || filters.outcome || filters.q))
+const hasFilters = computed(() => !!(filters.owner || filters.appId || filters.action || filters.outcome || filters.q))
 
 function clearFilters() {
-  filters.appId = filters.action = filters.outcome = ''
+  filters.owner = filters.appId = filters.action = filters.outcome = ''
   searchInput.value = ''
   filters.q = ''
 }
@@ -116,7 +120,7 @@ function statusColor(status: number) {
 
 <template>
   <div>
-    <PageHeader title="Request logs" description="Every request that reached the /api/v1 file API, including rejected ones.">
+    <PageHeader title="Request logs" :description="showOwners ? 'Every request that reached the /api/v1 file API, across all owners, including rejected ones.' : 'Every request your apps made to the /api/v1 file API, including rejected ones.'">
       <UiButton variant="secondary" :loading="pending" @click="refresh">Refresh</UiButton>
       <UiButton variant="secondary" :loading="pruning" :disabled="!data?.total" @click="pruneLogs">Prune (keep 30 days)</UiButton>
       <UiButton variant="danger" :loading="clearing" :disabled="!data?.total" @click="clearLogs">Clear all</UiButton>
@@ -146,7 +150,8 @@ function statusColor(status: number) {
       </div>
     </div>
 
-    <div class="mb-4 grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:grid-cols-2 sm:items-end lg:grid-cols-[1fr_1fr_1fr_1.5fr_auto]">
+    <div class="mb-4 grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:grid-cols-2 sm:items-end lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))_auto]">
+      <OwnerFilter v-if="showOwners" v-model="filters.owner" :users="users" />
       <UiSelect v-model="filters.appId" label="App" :options="appOptions" placeholder="All apps" />
       <UiSelect v-model="filters.action" label="Action" :options="ACTIONS.map((a) => ({ value: a, label: LOG_ACTION_LABELS[a] ?? a }))" placeholder="All actions" />
       <UiSelect
@@ -189,8 +194,8 @@ function statusColor(status: number) {
               <td class="px-4 py-2.5 whitespace-nowrap text-zinc-500">{{ formatDate(log.createdAt) }}</td>
               <td class="px-4 py-2.5">
                 <template v-if="log.appId">
-                  <NuxtLink :to="`/apps/${log.appId}`" class="font-medium text-indigo-600 hover:underline" @click.stop>{{ log.appName }}</NuxtLink>
-                  <div class="text-xs text-zinc-500">{{ log.keyName }}</div>
+                  <NuxtLink :to="`/apps/${log.appId}`" class="font-medium text-brand-600 hover:underline" @click.stop>{{ log.appName }}</NuxtLink>
+                  <div class="text-xs text-zinc-500">{{ log.keyName }}<span v-if="showOwners"> · {{ ownerLabel(log.ownerName) }}</span></div>
                 </template>
                 <span v-else class="text-zinc-400">—</span>
               </td>

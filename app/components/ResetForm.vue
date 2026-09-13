@@ -12,7 +12,7 @@ async function reset() {
   resetting.value = true
   try {
     await $fetch('/api/admin/reset', { method: 'POST', body: { secretKey: secretKey.value } })
-    status.value = { secretKeyConfigured: true, setupComplete: false, authenticated: false, siteName: 'Owns3' }
+    status.value = { secretKeyConfigured: true, setupComplete: false, authenticated: false, siteName: 'Owns3', usersEnabled: false, signupEnabled: false, actor: null }
     toast.success('Installation reset. Set a new admin password to start again.')
     await navigateTo('/setup')
   } catch (error) {

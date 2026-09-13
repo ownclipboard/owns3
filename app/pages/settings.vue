@@ -1,10 +1,30 @@
 <script setup lang="ts">
+definePageMeta({ adminOnly: true })
+
 const { status, refresh } = useAdminStatus()
 const toast = useToast()
 
 const { data: settings } = await useFetch('/api/admin/settings')
 const siteName = ref(settings.value?.siteName ?? status.value?.siteName ?? 'Owns3')
 const savingName = ref(false)
+
+const usersEnabled = ref(settings.value?.usersEnabled ?? false)
+const signupEnabled = ref(settings.value?.signupEnabled ?? true)
+const savingUsers = ref(false)
+async function saveUsers(patch: { usersEnabled?: boolean; signupEnabled?: boolean }) {
+  savingUsers.value = true
+  try {
+    await $fetch('/api/admin/settings', { method: 'PUT', body: patch })
+    if (patch.usersEnabled !== undefined) usersEnabled.value = patch.usersEnabled
+    if (patch.signupEnabled !== undefined) signupEnabled.value = patch.signupEnabled
+    await refresh()
+    toast.success('Settings saved')
+  } catch (e) {
+    toast.error(e)
+  } finally {
+    savingUsers.value = false
+  }
+}
 
 const logsEnabled = ref(settings.value?.logsEnabled ?? true)
 const savingLogs = ref(false)
@@ -62,6 +82,33 @@ async function changePassword() {
           <div class="min-w-64 flex-1"><UiInput v-model="siteName" label="Site name" required /></div>
           <UiButton type="submit" :loading="savingName">Save</UiButton>
         </form>
+      </UiCard>
+
+      <UiCard title="Users" description="Let other people log in with their own account, add their own S3 credentials and create apps. Settings stay admin-only.">
+        <div class="divide-y divide-zinc-100">
+          <div class="flex flex-wrap items-center justify-between gap-4 pb-4">
+            <div>
+              <div class="text-sm font-medium text-zinc-800">User accounts are {{ usersEnabled ? 'enabled' : 'disabled' }}</div>
+              <p class="mt-0.5 text-sm text-zinc-500">
+                {{ usersEnabled ? 'The login page shows a User tab. Manage accounts on the Users page.' : 'Only the administrator can log in. Existing users keep their data and their API keys keep working.' }}
+              </p>
+            </div>
+            <UiButton :variant="usersEnabled ? 'secondary' : 'primary'" :loading="savingUsers" @click="saveUsers({ usersEnabled: !usersEnabled })">
+              {{ usersEnabled ? 'Disable users' : 'Enable users' }}
+            </UiButton>
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-4 pt-4" :class="!usersEnabled && 'opacity-50'">
+            <div>
+              <div class="text-sm font-medium text-zinc-800">Self-signup is {{ signupEnabled ? 'allowed' : 'off' }}</div>
+              <p class="mt-0.5 text-sm text-zinc-500">
+                {{ signupEnabled ? 'Anyone can create an account from the login page.' : 'Only accounts you create on the Users page can log in.' }}
+              </p>
+            </div>
+            <UiButton variant="secondary" :disabled="!usersEnabled" :loading="savingUsers" @click="saveUsers({ signupEnabled: !signupEnabled })">
+              {{ signupEnabled ? 'Turn off signup' : 'Allow signup' }}
+            </UiButton>
+          </div>
+        </div>
       </UiCard>
 
       <UiCard title="Request logs" description="Record every request made to the /api/v1 file API.">

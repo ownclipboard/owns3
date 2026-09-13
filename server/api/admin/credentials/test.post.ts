@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 const schema = z.union([z.object({ id: z.string().min(1) }), credentialInputSchema])
 
 export default defineEventHandler(async (event) => {
+  const actor = requireActor(event)
   const db = useDb(event)
   const input = await readValidated(event, schema)
 
@@ -12,6 +13,7 @@ export default defineEventHandler(async (event) => {
   if ('id' in input) {
     const row = await db.select().from(tables.s3Credentials).where(eq(tables.s3Credentials.id, input.id)).get()
     if (!row) throw createError({ statusCode: 404, message: 'Credential not found' })
+    assertOwned(actor, row.userId, 'Credential')
     config = { ...row, secretAccessKey: await decryptSecret(row.secretAccessKey, getSecretKey(event)) }
   } else {
     config = input

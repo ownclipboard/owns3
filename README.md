@@ -1,3 +1,5 @@
+<p align="center"><img src="public/logos/lockup.svg" alt="Owns3" width="248"></p>
+
 # Owns3 Protocol - Your s3 storage server
 
 A protocol for the world to share your s3 storage without sharing your s3 credentials.
@@ -139,6 +141,21 @@ curl -X PUT "https://your-worker.workers.dev/api/v1/files/hello.txt" \
   --data-binary @hello.txt
 ```
 
+# User accounts (optional)
+
+By default only the administrator can log in. Turn on **Settings → Users → Enable users** to let other
+people have their own account. The login page then shows two tabs: **User** (username + password) and
+**Administrator** (password only).
+
+- Users add their own S3 credentials, create apps and API keys, and see request logs for their own apps.
+  Everything is scoped to the account: a user never sees another user's data.
+- Only the administrator can open Settings. The administrator sees every user's apps, credentials and logs,
+  with an **Owner** filter, and manages accounts on the **Users** page (create, disable, reset password, delete).
+- **Self-signup** is allowed by default while users are enabled and can be turned off in Settings, in which
+  case only accounts created by the administrator can log in.
+- Disabling users again hides the User tab and blocks user logins, but keeps their data, and their apps'
+  API keys keep working.
+
 # Request logs
 
 Every request to `/api/v1/*` is written to the `request_logs` table, including rejected ones (bad key, missing
@@ -153,7 +170,7 @@ Each logged request costs one D1 write, so keep the free-tier limit of 100k writ
 
 # Project layout
 
-- `server/database/schema.ts` – Drizzle schema (`site_settings`, `s3_credentials`, `apps`, `api_keys`, `request_logs`); migrations in `server/database/migrations`
+- `server/database/schema.ts` – Drizzle schema (`site_settings`, `users`, `s3_credentials`, `apps`, `api_keys`, `request_logs`); migrations in `server/database/migrations`
 - `server/api/admin/*` – dashboard API (session cookie protected)
 - `server/api/v1/*` – public API used by applications (API key protected)
 - `server/utils/s3.ts` – small S3 client built on `aws4fetch` (works on Workers, supports presigned URLs)

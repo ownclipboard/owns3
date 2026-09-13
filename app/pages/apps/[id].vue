@@ -6,8 +6,12 @@ const toast = useToast()
 const id = route.params.id as string
 const origin = useRequestURL().origin
 
+const { status, isAdmin } = useAdminStatus()
 const { data: app, error, refresh } = await useFetch(`/api/admin/apps/${id}`)
-const { data: credentials } = await useFetch('/api/admin/credentials')
+// Only credentials with the same owner as the app may be attached to it.
+const { data: credentials } = await useFetch('/api/admin/credentials', {
+  query: computed(() => ({ owner: app.value?.userId ?? 'admin' })),
+})
 
 const saving = ref(false)
 async function save(values: AppFormValues) {
@@ -97,7 +101,7 @@ const curlExample = computed(
     <div v-if="error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ errorMessage(error) }}</div>
 
     <template v-else-if="app">
-      <PageHeader :title="app.name" :description="app.description || `Stores files in ${app.credential.bucket}${app.folder ? ' under ' + app.folder + '/' : ''}`" back="/">
+      <PageHeader :title="app.name" :description="(app.description || `Stores files in ${app.credential.bucket}${app.folder ? ' under ' + app.folder + '/' : ''}`) + (isAdmin && status?.usersEnabled ? ' · owned by ' + ownerLabel(app.ownerName) : '')" back="/">
         <UiButton variant="secondary" :to="`/logs?appId=${app.id}`">View logs</UiButton>
       </PageHeader>
 
@@ -152,7 +156,7 @@ const curlExample = computed(
           <pre class="overflow-x-auto rounded-lg bg-zinc-900 p-4 text-xs leading-relaxed text-zinc-100"><code>{{ curlExample }}</code></pre>
           <p class="mt-3 text-sm text-zinc-600">
             Full reference with every endpoint:
-            <a href="/docs" target="_blank" rel="noopener" class="font-medium text-indigo-600 hover:underline">API docs ↗</a>
+            <a href="/docs" target="_blank" rel="noopener" class="font-medium text-brand-600 hover:underline">API docs ↗</a>
           </p>
         </UiCard>
 

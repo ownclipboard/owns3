@@ -8,10 +8,12 @@ const schema = z.object({
 
 /** Creates an API key. The plaintext key is returned exactly once. */
 export default defineEventHandler(async (event) => {
+  const actor = requireActor(event)
   const db = useDb(event)
   const appId = requireParam(event, 'id')
-  const app = await db.select({ id: tables.apps.id }).from(tables.apps).where(eq(tables.apps.id, appId)).get()
+  const app = await db.select({ id: tables.apps.id, userId: tables.apps.userId }).from(tables.apps).where(eq(tables.apps.id, appId)).get()
   if (!app) throw createError({ statusCode: 404, message: 'App not found' })
+  assertOwned(actor, app.userId, 'App')
 
   const { name, permissions } = await readValidated(event, schema)
   const key = generateApiKey()

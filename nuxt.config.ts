@@ -15,7 +15,27 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Owns3',
-      meta: [{ name: 'description', content: 'Share your S3 storage without sharing your S3 credentials.' }],
+      htmlAttrs: { lang: 'en' },
+      meta: [
+        { name: 'description', content: 'Share your S3 storage without sharing your S3 credentials. Owns3 issues per-app API keys for your own bucket.' },
+        { name: 'theme-color', content: '#f97316' },
+        { name: 'application-name', content: 'Owns3' },
+        { name: 'apple-mobile-web-app-title', content: 'Owns3' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'Owns3' },
+        { property: 'og:title', content: 'Owns3' },
+        { property: 'og:description', content: 'Share your S3 storage without sharing your S3 credentials.' },
+        { property: 'og:image', content: '/logos/app-icon-512.png' },
+        { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:title', content: 'Owns3' },
+        { name: 'twitter:description', content: 'Share your S3 storage without sharing your S3 credentials.' },
+        { name: 'twitter:image', content: '/logos/app-icon-512.png' },
+      ],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/logos/app-icon.svg' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/logos/favicon-32.png' },
+        { rel: 'apple-touch-icon', sizes: '512x512', href: '/logos/app-icon-512.png' },
+      ],
     },
   },
 

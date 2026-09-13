@@ -10,7 +10,7 @@ const id = useId()
       :id="id"
       v-model="model"
       type="checkbox"
-      class="mt-0.5 h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
+      class="mt-0.5 h-4 w-4 rounded border-zinc-300 text-brand-600 focus:ring-brand-500"
     />
     <span>
       <span class="block text-sm font-medium text-zinc-800">{{ label }}</span>

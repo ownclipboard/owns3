@@ -15,10 +15,10 @@ const NuxtLink = resolveComponent('NuxtLink')
 
 const classes = computed(() => {
   const base =
-    'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 disabled:cursor-not-allowed disabled:opacity-50'
+    'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 disabled:cursor-not-allowed disabled:opacity-50'
   const size = props.size === 'sm' ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'
   const variant = {
-    primary: 'bg-indigo-600 text-white shadow-sm hover:bg-indigo-500',
+    primary: 'bg-brand-600 text-white shadow-sm hover:bg-brand-500',
     secondary: 'border border-zinc-300 bg-white text-zinc-800 shadow-xs hover:bg-zinc-50',
     danger: 'bg-red-600 text-white shadow-sm hover:bg-red-500',
     ghost: 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900',

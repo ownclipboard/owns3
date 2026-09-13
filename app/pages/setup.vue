@@ -25,7 +25,7 @@ async function submit() {
   saving.value = true
   try {
     await $fetch('/api/admin/setup', { method: 'POST', body: { siteName: form.siteName, password: form.password } })
-    status.value = { secretKeyConfigured: true, setupComplete: true, authenticated: true, siteName: form.siteName }
+    status.value = { secretKeyConfigured: true, setupComplete: true, authenticated: true, siteName: form.siteName, usersEnabled: false, signupEnabled: false, actor: { kind: 'admin', username: null } }
     toast.success('Welcome! Add an S3 credential to get started.')
     await navigateTo('/credentials/new')
   } catch (error) {

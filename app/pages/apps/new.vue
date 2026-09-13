@@ -2,7 +2,7 @@
 import type { AppFormValues } from '~/components/AppForm.vue'
 
 const toast = useToast()
-const { data: credentials } = await useFetch('/api/admin/credentials')
+const { data: credentials } = await useFetch('/api/admin/credentials', { query: { owner: 'admin' } })
 const saving = ref(false)
 
 async function create(values: AppFormValues) {

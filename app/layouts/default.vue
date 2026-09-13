@@ -1,14 +1,34 @@
 <script setup lang="ts">
 const route = useRoute()
-const { status } = useAdminStatus()
+const { status, isAdmin } = useAdminStatus()
 const toast = useToast()
 
-const nav = [
-  { to: '/', label: 'Apps', match: (p: string) => p === '/' || p.startsWith('/apps') },
-  { to: '/credentials', label: 'S3 Credentials', match: (p: string) => p.startsWith('/credentials') },
-  { to: '/logs', label: 'Logs', match: (p: string) => p.startsWith('/logs') },
-  { to: '/settings', label: 'Settings', match: (p: string) => p.startsWith('/settings') },
-]
+interface NavItem {
+  to: string
+  label: string
+  match: (path: string) => boolean
+}
+
+const nav = computed<NavItem[]>(() => {
+  const items: NavItem[] = [
+    { to: '/', label: 'Apps', match: (p) => p === '/' || p.startsWith('/apps') },
+    { to: '/credentials', label: 'S3 Credentials', match: (p) => p.startsWith('/credentials') },
+    { to: '/logs', label: 'Logs', match: (p) => p.startsWith('/logs') },
+  ]
+  if (!isAdmin.value) items.push({ to: '/account', label: 'Account', match: (p) => p.startsWith('/account') })
+  return items
+})
+
+/** Shown under an "Admin Controls" heading, administrator only. */
+const adminNav = computed<NavItem[]>(() => {
+  if (!isAdmin.value) return []
+  const items: NavItem[] = []
+  if (status.value?.usersEnabled) items.push({ to: '/users', label: 'Users', match: (p) => p.startsWith('/users') })
+  items.push({ to: '/settings', label: 'Settings', match: (p) => p.startsWith('/settings') })
+  return items
+})
+
+const signedInAs = computed(() => (isAdmin.value ? 'Administrator' : status.value?.actor?.username ?? ''))
 
 const menuOpen = ref(false)
 watch(() => route.fullPath, () => (menuOpen.value = false))
@@ -44,8 +64,8 @@ const linkClass = (active: boolean) =>
   <div class="min-h-screen md:flex">
     <!-- Mobile top bar -->
     <header class="sticky top-0 z-40 flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4 py-3 text-white md:hidden">
-      <NuxtLink to="/" class="flex items-center gap-3">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold">S3</div>
+      <NuxtLink to="/" class="flex items-center gap-2.5">
+        <img src="/logos/mark-white.svg" alt="" width="48" height="48" class="h-8 w-8" />
         <span class="text-sm font-semibold">{{ status?.siteName || 'Owns3' }}</span>
       </NuxtLink>
       <button
@@ -76,17 +96,26 @@ const linkClass = (active: boolean) =>
         class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col bg-zinc-900 text-zinc-300 shadow-xl md:hidden"
       >
         <div class="flex items-center gap-3 border-b border-zinc-800 px-5 py-4">
-          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">S3</div>
+          <img src="/logos/mark-white.svg" alt="" width="48" height="48" class="h-9 w-9" />
           <div class="min-w-0">
             <div class="truncate text-sm font-semibold text-white">{{ status?.siteName || 'Owns3' }}</div>
             <div class="text-xs text-zinc-500">Owns3 dashboard</div>
           </div>
         </div>
-        <div class="flex-1 space-y-1 overflow-y-auto px-3 py-3">
-          <NuxtLink v-for="item in nav" :key="item.to" :to="item.to" :class="linkClass(item.match(route.path))">{{ item.label }}</NuxtLink>
-          <a href="/docs" target="_blank" rel="noopener" :class="linkClass(false)">API Docs ↗</a>
+        <div class="flex-1 overflow-y-auto px-3 py-3">
+          <div class="space-y-1">
+            <NuxtLink v-for="item in nav" :key="item.to" :to="item.to" :class="linkClass(item.match(route.path))">{{ item.label }}</NuxtLink>
+            <a href="/docs" target="_blank" rel="noopener" :class="linkClass(false)">API Docs ↗</a>
+          </div>
+          <template v-if="adminNav.length">
+            <div class="mt-6 mb-2 px-3 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">Admin Controls</div>
+            <div class="space-y-1">
+              <NuxtLink v-for="item in adminNav" :key="item.to" :to="item.to" :class="linkClass(item.match(route.path))">{{ item.label }}</NuxtLink>
+            </div>
+          </template>
         </div>
         <div class="border-t border-zinc-800 p-3">
+          <div class="truncate px-3 pb-1 text-xs text-zinc-500">Signed in as {{ signedInAs }}</div>
           <button type="button" :class="linkClass(false) + ' w-full text-left disabled:opacity-50'" :disabled="loggingOut" @click="logout">Log out</button>
         </div>
       </nav>
@@ -94,18 +123,27 @@ const linkClass = (active: boolean) =>
 
     <!-- Desktop sidebar -->
     <aside class="hidden w-60 shrink-0 flex-col border-r border-zinc-800 bg-zinc-900 text-zinc-300 md:sticky md:top-0 md:flex md:h-screen">
-      <div class="flex items-center gap-3 px-5 py-5">
-        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">S3</div>
+      <NuxtLink to="/" class="flex items-center gap-3 px-5 py-5">
+        <img src="/logos/mark-white.svg" alt="" width="48" height="48" class="h-9 w-9" />
         <div class="min-w-0">
           <div class="truncate text-sm font-semibold text-white">{{ status?.siteName || 'Owns3' }}</div>
           <div class="text-xs text-zinc-500">Owns3 dashboard</div>
         </div>
-      </div>
-      <nav class="flex-1 space-y-1 px-3">
-        <NuxtLink v-for="item in nav" :key="item.to" :to="item.to" :class="linkClass(item.match(route.path))">{{ item.label }}</NuxtLink>
-        <a href="/docs" target="_blank" rel="noopener" :class="linkClass(false)">API Docs ↗</a>
+      </NuxtLink>
+      <nav class="flex-1 overflow-y-auto px-3">
+        <div class="space-y-1">
+          <NuxtLink v-for="item in nav" :key="item.to" :to="item.to" :class="linkClass(item.match(route.path))">{{ item.label }}</NuxtLink>
+          <a href="/docs" target="_blank" rel="noopener" :class="linkClass(false)">API Docs ↗</a>
+        </div>
+        <template v-if="adminNav.length">
+          <div class="mt-6 mb-2 px-3 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">Admin Controls</div>
+          <div class="space-y-1">
+            <NuxtLink v-for="item in adminNav" :key="item.to" :to="item.to" :class="linkClass(item.match(route.path))">{{ item.label }}</NuxtLink>
+          </div>
+        </template>
       </nav>
       <div class="border-t border-zinc-800 p-3">
+        <div class="truncate px-3 pb-1 text-xs text-zinc-500">Signed in as {{ signedInAs }}</div>
         <button type="button" :class="linkClass(false) + ' w-full text-left disabled:opacity-50'" :disabled="loggingOut" @click="logout">Log out</button>
       </div>
     </aside>

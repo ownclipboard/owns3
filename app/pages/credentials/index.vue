@@ -1,5 +1,8 @@
 <script setup lang="ts">
-const { data: credentials, error } = await useFetch('/api/admin/credentials')
+const route = useRoute()
+const { showOwners, users } = await useOwners()
+const owner = ref((route.query.owner as string) || '')
+const { data: credentials, error } = await useFetch('/api/admin/credentials', { query: computed(() => ({ owner: owner.value || undefined })) })
 </script>
 
 <template>
@@ -8,9 +11,11 @@ const { data: credentials, error } = await useFetch('/api/admin/credentials')
       <UiButton to="/credentials/new">Add credential</UiButton>
     </PageHeader>
 
+    <div v-if="showOwners" class="mb-4 max-w-xs"><OwnerFilter v-model="owner" :users="users" /></div>
+
     <div v-if="error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ errorMessage(error) }}</div>
 
-    <UiEmpty v-else-if="!credentials?.length" title="No credentials yet" description="Add the endpoint, bucket and access keys of an S3-compatible storage such as Cloudflare R2.">
+    <UiEmpty v-else-if="!credentials?.length" :title="owner ? 'No credentials for this owner' : 'No credentials yet'" description="Add the endpoint, bucket and access keys of an S3-compatible storage such as Cloudflare R2.">
       <UiButton to="/credentials/new">Add S3 credential</UiButton>
     </UiEmpty>
 
@@ -19,6 +24,7 @@ const { data: credentials, error } = await useFetch('/api/admin/credentials')
         <thead class="bg-zinc-50 text-left text-xs font-semibold tracking-wide text-zinc-500 uppercase">
           <tr>
             <th class="px-5 py-3">Name</th>
+            <th v-if="showOwners" class="px-5 py-3">Owner</th>
             <th class="px-5 py-3">Bucket</th>
             <th class="px-5 py-3">Endpoint</th>
             <th class="px-5 py-3">Apps</th>
@@ -28,8 +34,9 @@ const { data: credentials, error } = await useFetch('/api/admin/credentials')
         <tbody class="divide-y divide-zinc-100">
           <tr v-for="c in credentials" :key="c.id" class="hover:bg-zinc-50">
             <td class="px-5 py-3">
-              <NuxtLink :to="`/credentials/${c.id}`" class="font-medium text-indigo-600 hover:underline">{{ c.name }}</NuxtLink>
+              <NuxtLink :to="`/credentials/${c.id}`" class="font-medium text-brand-600 hover:underline">{{ c.name }}</NuxtLink>
             </td>
+            <td v-if="showOwners" class="px-5 py-3 text-zinc-700">{{ ownerLabel(c.ownerName) }}</td>
             <td class="px-5 py-3 font-mono text-xs text-zinc-700">{{ c.bucket }} <span class="text-zinc-400">({{ c.region }})</span></td>
             <td class="max-w-xs truncate px-5 py-3 font-mono text-xs text-zinc-500">{{ c.endpoint }}</td>
             <td class="px-5 py-3 text-zinc-700">{{ c.appCount }}</td>

@@ -19,7 +19,7 @@ const id = useId()
       :id="id"
       v-model="model"
       :required="required"
-      class="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-xs focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+      class="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-xs focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none"
     >
       <option v-if="placeholder" value="" disabled>{{ placeholder }}</option>
       <option v-for="opt in options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>

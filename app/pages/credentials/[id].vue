@@ -11,11 +11,13 @@ interface CredentialDetail {
   forcePathStyle: boolean
   createdAt: string
   updatedAt: string
+  ownerName: string | null
   apps: { id: string; name: string; slug: string }[]
 }
 
 const route = useRoute()
 const toast = useToast()
+const { status, isAdmin } = useAdminStatus()
 const id = route.params.id as string
 
 const { data: credential, error, refresh } = await useFetch<CredentialDetail>(`/api/admin/credentials/${id}`)
@@ -54,7 +56,7 @@ async function remove() {
     <div v-if="error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ errorMessage(error) }}</div>
 
     <template v-else-if="credential">
-      <PageHeader :title="credential.name" :description="`${credential.bucket} · ${credential.endpoint}`" back="/credentials" />
+      <PageHeader :title="credential.name" :description="`${credential.bucket} · ${credential.endpoint}${isAdmin && status?.usersEnabled ? ' · owned by ' + ownerLabel(credential.ownerName) : ''}`" back="/credentials" />
 
       <div class="space-y-6">
         <UiCard title="Connection">
@@ -64,7 +66,7 @@ async function remove() {
         <UiCard title="Apps using this credential">
           <ul v-if="credential.apps.length" class="divide-y divide-zinc-100">
             <li v-for="app in credential.apps" :key="app.id" class="flex items-center justify-between py-2 text-sm">
-              <NuxtLink :to="`/apps/${app.id}`" class="font-medium text-indigo-600 hover:underline">{{ app.name }}</NuxtLink>
+              <NuxtLink :to="`/apps/${app.id}`" class="font-medium text-brand-600 hover:underline">{{ app.name }}</NuxtLink>
               <span class="font-mono text-xs text-zinc-500">{{ app.slug }}</span>
             </li>
           </ul>

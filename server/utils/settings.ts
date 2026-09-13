@@ -4,6 +4,8 @@ export const SETTING_KEYS = {
   passwordHash: 'admin_password_hash',
   siteName: 'site_name',
   logsEnabled: 'logs_enabled',
+  usersEnabled: 'users_enabled',
+  signupEnabled: 'signup_enabled',
 } as const
 
 export async function getSetting(db: Db, key: string): Promise<string | null> {
@@ -25,4 +27,13 @@ export async function isSetupComplete(db: Db): Promise<boolean> {
 /** Request logging is on unless explicitly turned off in Settings. */
 export async function isLoggingEnabled(db: Db): Promise<boolean> {
   return (await getSetting(db, SETTING_KEYS.logsEnabled)) !== 'false'
+}
+
+export async function isUsersEnabled(db: Db): Promise<boolean> {
+  return (await getSetting(db, SETTING_KEYS.usersEnabled)) === 'true'
+}
+
+/** Self-signup is on by default whenever users are enabled. */
+export async function isSignupEnabled(db: Db): Promise<boolean> {
+  return (await isUsersEnabled(db)) && (await getSetting(db, SETTING_KEYS.signupEnabled)) !== 'false'
 }

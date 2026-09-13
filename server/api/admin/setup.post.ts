@@ -13,7 +13,6 @@ export default defineEventHandler(async (event) => {
   const { siteName, password } = await readValidated(event, schema)
   await setSetting(db, SETTING_KEYS.passwordHash, await hashPassword(password))
   await setSetting(db, SETTING_KEYS.siteName, siteName)
-  const session = await useAdminSession(event)
-  await session.update({ admin: true })
+  await loginAs(event, { admin: true })
   return { ok: true }
 })

@@ -84,6 +84,7 @@ export async function writeRequestLog(event: H3Event, status: number, error: str
     .insert(tables.requestLogs)
     .values({
       id: crypto.randomUUID(),
+      userId: ctx?.app.userId ?? null,
       appId: ctx?.app.id ?? null,
       appName: ctx?.app.name ?? null,
       keyId: ctx?.key.id ?? null,

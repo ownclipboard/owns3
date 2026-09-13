@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 const schema = z.object({ password: z.string().min(1, 'Password is required') })
 
+/** Administrator login (password only). */
 export default defineEventHandler(async (event) => {
   const db = useDb(event)
   const hash = await getSetting(db, SETTING_KEYS.passwordHash)
@@ -10,7 +11,6 @@ export default defineEventHandler(async (event) => {
   if (!(await verifyPassword(password, hash))) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized', message: 'Incorrect password.' })
   }
-  const session = await useAdminSession(event)
-  await session.update({ admin: true })
+  await loginAs(event, { admin: true })
   return { ok: true }
 })

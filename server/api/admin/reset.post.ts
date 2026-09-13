@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
     db.delete(tables.apiKeys),
     db.delete(tables.apps),
     db.delete(tables.s3Credentials),
+    db.delete(tables.users),
     db.delete(tables.siteSettings),
   ])
 
