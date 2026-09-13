@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Many columns: use the full width up to the 2xl breakpoint.
+definePageMeta({ wide: true })
+
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
