@@ -64,6 +64,10 @@ export const apps = sqliteTable(
       .notNull()
       .references(() => s3Credentials.id),
     folder: text("folder").notNull().default(""),
+    /** Allow unauthenticated reads through /preview/{key}/{path} using short-lived preview keys. */
+    previewEnabled: integer("preview_enabled", { mode: "boolean" }).notNull().default(false),
+    /** Lifetime of a preview key in minutes. A key stays valid for up to twice this so a rotation never breaks a page mid-load. */
+    previewTtlMinutes: integer("preview_ttl_minutes").notNull().default(10),
     ...timestamps,
   },
   (t) => [index("apps_user_idx").on(t.userId)],

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 
-const schema = credentialInputSchema.partial().extend({
+const schema = credentialPatchSchema.extend({
   // Blank means "keep the existing secret".
   secretAccessKey: z.string().max(500).optional(),
 })

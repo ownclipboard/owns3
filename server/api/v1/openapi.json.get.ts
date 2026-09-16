@@ -20,6 +20,9 @@ export default defineEventHandler(async (event) => {
         'Authenticate every request with an application API key, either as `Authorization: Bearer <key>` or an `x-api-key` header.',
         'All `path` values are relative to the folder configured for the app; the app cannot read or write outside that folder.',
         'Each key carries a subset of the `read`, `write` and `delete` permissions.',
+        '',
+        'Apps with preview links enabled can serve files publicly at `/preview/{key}/{path}` using a rotating key from `GET /api/v1/preview-key`.',
+        'Those URLs need no API key, so they can be used directly in `<img>` and `<video>` tags. Files of 99 MB or more are not served this way.',
       ].join('\n'),
     },
     servers: [{ url: origin }],
@@ -27,6 +30,7 @@ export default defineEventHandler(async (event) => {
       { name: 'App', description: 'Information about the calling application' },
       { name: 'Files', description: 'CRUD operations proxied through this server' },
       { name: 'Presigned URLs', description: 'Direct-to-S3 transfers for large files' },
+      { name: 'Preview links', description: 'Rotating keys for public, unauthenticated reads (galleries, image tags)' },
     ],
     paths,
     components: {

@@ -87,6 +87,37 @@ async function revokeKey(key: { id: string; name: string; revokedAt: string | nu
   }
 }
 
+// ---- Preview links ----
+const preview = reactive({ enabled: false, ttl: '10' })
+watch(
+  () => app.value,
+  (a) => {
+    if (!a) return
+    preview.enabled = a.previewEnabled
+    preview.ttl = String(a.previewTtlMinutes)
+  },
+  { immediate: true },
+)
+const savingPreview = ref(false)
+async function savePreview(enabled: boolean) {
+  const ttl = Number(preview.ttl)
+  if (!Number.isInteger(ttl) || ttl < 1 || ttl > 10080) {
+    toast.error('Rotation must be a whole number of minutes between 1 and 10080 (7 days)')
+    return
+  }
+  savingPreview.value = true
+  try {
+    await $fetch(`/api/admin/apps/${id}`, { method: 'PATCH', body: { previewEnabled: enabled, previewTtlMinutes: ttl } })
+    await refresh()
+    toast.success(enabled ? 'Preview links enabled' : 'Preview links disabled')
+  } catch (e) {
+    toast.error(e)
+  } finally {
+    savingPreview.value = false
+  }
+}
+const previewExample = computed(() => `${origin}/preview/<preview-key>/photos/cat.jpg`)
+
 const curlExample = computed(
   () =>
     `curl -X PUT "${origin}/api/v1/files/hello.txt" \\
@@ -158,6 +189,34 @@ const curlExample = computed(
             Full reference with every endpoint:
             <a href="/docs" target="_blank" rel="noopener" class="font-medium text-brand-600 hover:underline">API docs ↗</a>
           </p>
+        </UiCard>
+
+        <UiCard title="Preview links" description="Public, unauthenticated read URLs for galleries and image tags. The app fetches a rotating key from /api/v1/preview-key and builds URLs from it.">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0 space-y-3">
+              <div>
+                <div class="text-sm font-medium text-zinc-800">Preview links are {{ app.previewEnabled ? 'on' : 'off' }}</div>
+                <p class="mt-1 text-sm text-zinc-500">
+                  <template v-if="app.previewEnabled">
+                    Anyone with a current key can read any file in this app's folder. Keys rotate every {{ app.previewTtlMinutes }} min and stay valid for up to {{ app.previewTtlMinutes * 2 }} min.
+                    Files of 99 MB or more are not served. These reads are not logged.
+                  </template>
+                  <template v-else>Off by default. Turn on only for content that may be public, such as a gallery.</template>
+                </p>
+              </div>
+              <div class="max-w-xs">
+                <UiInput v-model="preview.ttl" type="number" label="Rotate key every (minutes)" hint="1 to 10080 (7 days). Applied when you save." />
+              </div>
+              <pre v-if="app.previewEnabled" class="overflow-x-auto rounded-lg bg-zinc-900 p-3 text-xs leading-relaxed text-zinc-100"><code>GET {{ origin }}/api/v1/preview-key   → { key, expiresAt, baseUrl }
+&lt;img src="{{ previewExample }}"&gt;</code></pre>
+            </div>
+            <div class="flex shrink-0 gap-2">
+              <UiButton v-if="app.previewEnabled" variant="secondary" :loading="savingPreview" @click="savePreview(true)">Save</UiButton>
+              <UiButton :variant="app.previewEnabled ? 'secondary' : 'primary'" :loading="savingPreview" @click="savePreview(!app.previewEnabled)">
+                {{ app.previewEnabled ? 'Turn off' : 'Turn on' }}
+              </UiButton>
+            </div>
+          </div>
         </UiCard>
 
         <UiCard title="Settings">

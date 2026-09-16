@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 
-export const LOG_ACTIONS = ['upload', 'download', 'delete', 'list', 'stat', 'presign_upload', 'presign_download', 'me', 'other'] as const
+export const LOG_ACTIONS = ['upload', 'download', 'delete', 'list', 'stat', 'presign_upload', 'presign_download', 'preview_key', 'me', 'other'] as const
 export type LogAction = (typeof LOG_ACTIONS)[number]
 
 export interface LogDetails {
@@ -33,6 +33,7 @@ export function inferLogAction(method: string, path: string): LogAction {
   if (path.startsWith('/api/v1/stat/')) return 'stat'
   if (path === '/api/v1/presign/upload') return 'presign_upload'
   if (path === '/api/v1/presign/download') return 'presign_download'
+  if (path === '/api/v1/preview-key') return 'preview_key'
   return 'other'
 }
 

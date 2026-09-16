@@ -6,6 +6,7 @@ export const LOG_ACTION_LABELS: Record<string, string> = {
   stat: 'Stat',
   presign_upload: 'Presign upload',
   presign_download: 'Presign download',
+  preview_key: 'Preview key',
   me: 'App info',
   other: 'Other',
 }

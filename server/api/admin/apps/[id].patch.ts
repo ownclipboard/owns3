@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   if (!existing) throw createError({ statusCode: 404, message: 'App not found' })
   assertOwned(actor, existing.userId, 'App')
 
-  const input = await readValidated(event, appInputSchema.partial())
+  const input = await readValidated(event, appPatchSchema)
   const patch: Partial<typeof existing> = { ...input, updatedAt: new Date() }
 
   if (input.credentialId) {

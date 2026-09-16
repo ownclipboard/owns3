@@ -130,6 +130,8 @@ All paths are relative to the app folder. Full reference with request/response e
 | DELETE | `/api/v1/files/{path}` | delete | Delete an object |
 | POST | `/api/v1/presign/upload` | write | Presigned `PUT` URL for direct-to-S3 uploads |
 | POST | `/api/v1/presign/download` | read | Presigned `GET` URL |
+| GET | `/api/v1/preview-key` | read | Current rotating key for public preview links |
+| GET | `/preview/{key}/{path}` | none | Public read using a preview key (see below) |
 
 Proxied uploads are limited by the Workers request body limit (100 MB on the free plan). Use the presigned
 endpoints for larger files.
@@ -140,6 +142,28 @@ curl -X PUT "https://your-worker.workers.dev/api/v1/files/hello.txt" \
   -H "Content-Type: text/plain" \
   --data-binary @hello.txt
 ```
+
+# Preview links (public reads)
+
+Browsers cannot send an API key from an `<img>` or `<video>` tag, so a gallery would otherwise need a presigned
+URL per file. Instead, turn on **Preview links** on the app page. The app then calls `GET /api/v1/preview-key`
+(read permission) and gets a short-lived key plus a `baseUrl`; every file in the app folder is readable at
+`/preview/{key}/{path}` with no authentication:
+
+```html
+<img src="https://your-worker.workers.dev/preview/q7ZfQ3v9RkK0m1XyAbCdEg.1z4k9xk.Vt3q9m2pL8sN1eR4wY6uZg/photos/cat.jpg">
+```
+
+- Keys rotate on the schedule you set per app (default every 10 minutes, up to 7 days). A key stays valid for
+  two rotation windows, so fetch a fresh one before `expiresAt` and rebuild your URLs. Within a window the
+  endpoint returns the same key, so it is safe to call on every page render.
+- Keys are stateless: an HMAC of the app id and expiry signed with `SECRET_KEY`. Nothing is stored, and turning
+  preview links off invalidates every key immediately.
+- Files are streamed from the bucket through the Worker with `Cache-Control` and `ETag` headers, and `Range`
+  requests work for video. Files of 99 MB or more are refused with `413`.
+- Preview reads are public by definition: anyone holding a current key can read any file in the app folder
+  until it expires. Keep preview links off for apps that hold private files.
+- Preview reads are not written to the request log.
 
 # User accounts (optional)
 
