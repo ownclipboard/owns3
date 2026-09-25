@@ -36,7 +36,7 @@ async function reset() {
       required
       mono
       autocomplete="off"
-      hint="The SECRET_KEY worker secret you configured when deploying. Only its holder can reset the installation."
+      hint="The SECRET_KEY worker secret you configured when deploying."
     />
     <UiInput v-model="confirmation" label="Type RESET to confirm" placeholder="RESET" required mono autocomplete="off" />
     <div class="flex justify-end gap-2">

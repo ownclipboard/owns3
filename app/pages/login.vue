@@ -69,7 +69,7 @@ const tabClass = (active: boolean) =>
     <template #footer>
       <p class="text-center text-xs text-zinc-500">
         Forgot the administrator password?
-        <NuxtLink to="/reset" class="font-medium text-zinc-700 underline hover:text-zinc-900">Reset the installation</NuxtLink>
+        <NuxtLink to="/recover" class="font-medium text-zinc-700 underline hover:text-zinc-900">Set a new one</NuxtLink>
         with your SECRET_KEY.
       </p>
     </template>

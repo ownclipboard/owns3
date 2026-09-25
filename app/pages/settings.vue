@@ -143,7 +143,7 @@ async function changePassword() {
         </dl>
       </UiCard>
 
-      <UiCard title="Danger zone" description="Factory-reset this Owns3 server. Requires the SECRET_KEY." danger>
+      <UiCard title="Danger zone" description="Factory-reset this Owns3 server back to the fresh-install screen. Requires the SECRET_KEY." danger>
         <ResetForm />
       </UiCard>
     </div>

@@ -53,10 +53,12 @@ Which most times does the trick for small projects.
 The dashboard is protected by a single admin password chosen during first-run setup and stored as a bcrypt
 hash in the `site_settings` table.
 
-**Forgot the password?** Open `/reset` (linked from the login page) and enter the `SECRET_KEY` worker secret.
-This factory-resets the installation: password, site settings, credentials, apps and API keys are deleted and
-the setup screen is shown again. Files already in your buckets are never touched. The same reset is available
-in the Danger Zone of the Settings page.
+**Forgot the password?** Open `/recover` (linked from the login page), enter the `SECRET_KEY` worker secret and
+choose a new password. Nothing else changes.
+
+**Starting over?** The Danger Zone on the Settings page factory-resets the installation: password, site settings,
+users, credentials, apps, API keys and logs are deleted and the setup screen is shown again. It requires both an
+administrator login and the `SECRET_KEY`. Files already in your buckets are never touched.
 
 # One-click deploy to Cloudflare
 
@@ -68,8 +70,7 @@ You only need a free [Cloudflare account](https://dash.cloudflare.com/sign-up) a
 3. It creates the **D1 database** for you automatically.
 4. Under **Secrets** you are asked for `SECRET_KEY`. Paste a long random string (32 characters or more,
    for example from a password generator). Write it down somewhere safe: it protects the S3 credentials you
-   will save, and it is the only thing that can [reset the installation](#how-it-works) if you forget the
-   admin password.
+   will save, and it is the only way to [recover the admin password](#how-it-works) if you forget it.
 5. Click **Create and deploy**. The first build takes a minute or two and applies the database schema.
 6. Open the Worker URL you are given (something like `https://owns3.<your-subdomain>.workers.dev`),
    choose an admin password, add your S3 or R2 credential, create an app and generate an API key.

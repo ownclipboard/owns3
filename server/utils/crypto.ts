@@ -26,6 +26,14 @@ export function getSecretKey(event: H3Event): string {
   return secret
 }
 
+/** Compares two strings without leaking their difference through timing. */
+export async function secretsMatch(a: string, b: string): Promise<boolean> {
+  const [ha, hb] = await Promise.all([sha256Hex(a), sha256Hex(b)])
+  let diff = 0
+  for (let i = 0; i < ha.length; i++) diff |= ha.charCodeAt(i) ^ hb.charCodeAt(i)
+  return diff === 0
+}
+
 export async function sha256Hex(input: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', enc.encode(input))
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')

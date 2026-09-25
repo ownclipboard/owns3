@@ -4,7 +4,7 @@ const PUBLIC_ADMIN_ROUTES = new Set([
   '/api/admin/login',
   '/api/admin/user-login',
   '/api/admin/signup',
-  '/api/admin/reset',
+  '/api/admin/recover',
 ])
 
 /** Every /api/admin/* route requires a logged-in actor (admin or user) except the public auth routes. */

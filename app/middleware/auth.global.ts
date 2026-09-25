@@ -7,10 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!current.setupComplete) {
     return to.path === '/setup' ? undefined : navigateTo('/setup')
   }
-  // The reset page is reachable whether or not someone is logged in (it is how a lost password is recovered).
-  if (to.path === '/reset') return
-
-  const isPublicPage = to.path === '/login' || to.path === '/signup'
+  const isPublicPage = to.path === '/login' || to.path === '/signup' || to.path === '/recover'
   if (!current.authenticated) {
     if (to.path === '/signup' && !current.signupEnabled) return navigateTo('/login')
     return isPublicPage ? undefined : navigateTo('/login')
