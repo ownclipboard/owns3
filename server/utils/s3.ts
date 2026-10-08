@@ -131,6 +131,17 @@ export class S3Client {
     }
   }
 
+  /** Server-side copy within the bucket. S3 answers 200 with an XML body that may still carry an error. */
+  async copyObject(fromKey: string, toKey: string): Promise<{ etag: string }> {
+    const res = await this.request('PUT', this.objectUrl(toKey), {
+      headers: { 'x-amz-copy-source': `/${this.cfg.bucket}/${encodeKey(fromKey)}`, 'x-amz-metadata-directive': 'COPY' },
+    })
+    const xml = await res.text()
+    const code = xmlTag(xml, 'Code')
+    if (code) throw new S3Error(code === 'NoSuchKey' ? 404 : 500, code, xmlTag(xml, 'Message') ?? 'Copy failed')
+    return { etag: xmlTag(xml, 'ETag') ?? res.headers.get('etag') ?? '' }
+  }
+
   async deleteObject(key: string): Promise<void> {
     const res = await this.request('DELETE', this.objectUrl(key))
     await res.body?.cancel()

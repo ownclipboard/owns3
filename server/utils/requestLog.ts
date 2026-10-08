@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 
-export const LOG_ACTIONS = ['upload', 'download', 'delete', 'list', 'stat', 'presign_upload', 'presign_download', 'preview_key', 'me', 'other'] as const
+export const LOG_ACTIONS = ['upload', 'download', 'delete', 'list', 'stat', 'presign_upload', 'presign_download', 'copy', 'move', 'preview_key', 'me', 'other'] as const
 export type LogAction = (typeof LOG_ACTIONS)[number]
 
 export interface LogDetails {
@@ -25,6 +25,8 @@ export function inferLogAction(method: string, path: string): LogAction {
   const m = method.toUpperCase()
   if (path === '/api/v1/me') return 'me'
   if (path === '/api/v1/files') return m === 'GET' ? 'list' : m === 'POST' ? 'upload' : 'other'
+  if (path === '/api/v1/files/copy') return 'copy'
+  if (path === '/api/v1/files/move') return 'move'
   if (path.startsWith('/api/v1/files/')) {
     if (m === 'GET' || m === 'HEAD') return 'download'
     if (m === 'PUT') return 'upload'
@@ -40,7 +42,7 @@ export function inferLogAction(method: string, path: string): LogAction {
 /** Best-effort object path from the URL, used when the handler failed before it could report one. */
 function pathFromUrl(path: string): string | null {
   const match = path.match(/^\/api\/v1\/(?:files|stat)\/(.+)$/)
-  if (!match) return null
+  if (!match || match[1] === 'copy' || match[1] === 'move') return null
   try {
     return decodeURIComponent(match[1]!)
   } catch {

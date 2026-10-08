@@ -129,6 +129,8 @@ All paths are relative to the app folder. Full reference with request/response e
 | GET | `/api/v1/files/{path}` | read | Download (supports `Range`, `?download=1`) |
 | GET | `/api/v1/stat/{path}` | read | Size, content type, ETag, last modified |
 | DELETE | `/api/v1/files/{path}` | delete | Delete an object |
+| POST | `/api/v1/files/copy` | read + write | Server-side copy `{ from, to }` (no download/upload) |
+| POST | `/api/v1/files/move` | read + write + delete | Copy then delete the source |
 | POST | `/api/v1/presign/upload` | write | Presigned `PUT` URL for direct-to-S3 uploads |
 | POST | `/api/v1/presign/download` | read | Presigned `GET` URL |
 | GET | `/api/v1/preview-key` | read | Current rotating key for public preview links |

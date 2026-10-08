@@ -6,6 +6,8 @@ export const LOG_ACTION_LABELS: Record<string, string> = {
   stat: 'Stat',
   presign_upload: 'Presign upload',
   presign_download: 'Presign download',
+  copy: 'Copy',
+  move: 'Move',
   preview_key: 'Preview key',
   me: 'App info',
   other: 'Other',
@@ -23,6 +25,8 @@ export function logActionColor(action: string): 'zinc' | 'green' | 'red' | 'indi
       return 'indigo'
     case 'list':
     case 'stat':
+    case 'copy':
+    case 'move':
       return 'amber'
     default:
       return 'zinc'
